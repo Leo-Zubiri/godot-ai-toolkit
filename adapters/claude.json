@@ -1,0 +1,6 @@
+{
+  "agent": "claude",
+  "skillsPath": ".claude/skills",
+  "instructionsFile": "CLAUDE.md",
+  "notes": "Claude Code. Discovers skills in .claude/skills/<name>/SKILL.md. Reads AGENTS.md as project instructions only when no CLAUDE.md exists (v2.1.277+)."
+}

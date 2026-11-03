@@ -1,0 +1,14 @@
+; Minimal C#/.NET fixture project (Godot 4.x). Requires the .NET editor build of
+; Godot to run; `dotnet build` needs the Godot.NET.Sdk (restored from NuGet).
+; See docs/compatibility.md and integrations/dotnet/README.md
+
+config_version=5
+
+[application]
+
+config/name="csharp-fixture"
+config/features=PackedStringArray("4.7", "C#")
+
+[dotnet]
+
+project/assembly_name="csharp-fixture"

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Example .runsettings for gdUnit4Net (C# tests for Godot).
+  Docs: https://github.com/MikeSchulze/gdUnit4
+  Usage: dotnet test --settings integrations/dotnet/gdunit4.runsettings
+  Notes:
+    - Engine-dependent tests ([RequireGodotRuntime]) launch the Godot runtime
+      and require the .NET editor build of Godot.
+    - GodotConnectTimeout default is 10s (max 60s).
+-->
+<RunSettings>
+  <RunConfiguration>
+    <MaxCpuCount>1</MaxCpuCount>
+    <TestSessionTimeout>120000</TestSessionTimeout>
+    <EnvironmentVariables>
+      <!-- Point this at your .NET-enabled Godot executable for engine-bound tests. -->
+      <GODOT_BIN></GODOT_BIN>
+    </EnvironmentVariables>
+  </RunConfiguration>
+
+  <GdUnit4>
+    <!-- Seconds to wait for the Godot runtime connection (default 10, max 60). -->
+    <GodotConnectTimeout>10</GodotConnectTimeout>
+  </GdUnit4>
+</RunSettings>

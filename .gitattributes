@@ -1,0 +1,39 @@
+# Normalize line endings: LF in the repo for all text, to avoid CRLF churn
+# across Windows/Linux/macOS contributors.
+* text=auto eol=lf
+
+# Explicit text types (belt and suspenders).
+*.go      text eol=lf
+*.gd      text eol=lf
+*.cs      text eol=lf
+*.md      text eol=lf
+*.json    text eol=lf
+*.yml     text eol=lf
+*.yaml    text eol=lf
+*.cfg     text eol=lf
+*.tscn    text eol=lf
+*.tres    text eol=lf
+*.godot   text eol=lf
+*.csproj  text eol=lf
+*.sln     text eol=lf text merge=union
+
+# Windows scripts stay CRLF.
+*.ps1     text eol=crlf
+*.bat     text eol=crlf
+
+# Binary assets — never touch EOL, never diff as text.
+*.png     binary
+*.jpg     binary
+*.jpeg    binary
+*.webp    binary
+*.ogg     binary
+*.wav     binary
+*.mp3     binary
+*.ttf     binary
+*.otf     binary
+*.glb     binary
+*.gltf    binary
+*.dll     binary
+*.so      binary
+*.dylib   binary
+*.import  text eol=lf

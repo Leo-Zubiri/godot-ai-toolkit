@@ -1,0 +1,6 @@
+{
+  "agent": "opencode",
+  "skillsPath": ".claude/skills",
+  "instructionsFile": "AGENTS.md",
+  "notes": "OpenCode reads .claude/skills directly (also .opencode/skills and .agents/skills). Uses AGENTS.md for rules, falling back to CLAUDE.md when absent."
+}

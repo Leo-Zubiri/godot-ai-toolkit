@@ -1,0 +1,13 @@
+; Minimal mixed GDScript + C# fixture project (Godot 4.x). Proves the two
+; languages coexist in one project. C# parts require the .NET editor build.
+
+config_version=5
+
+[application]
+
+config/name="mixed-fixture"
+config/features=PackedStringArray("4.7", "C#")
+
+[dotnet]
+
+project/assembly_name="mixed-fixture"

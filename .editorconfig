@@ -1,0 +1,32 @@
+# EditorConfig — https://editorconfig.org
+# Consistent formatting across editors for Go, GDScript, C#, JSON, Markdown.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+# Go is tab-indented by convention (gofmt).
+[*.go]
+indent_style = tab
+
+# GDScript must use tabs (Godot's official style guide).
+[*.gd]
+indent_style = tab
+
+# C# / .NET
+[*.{cs,csproj,sln,slnx,props,targets}]
+indent_style = space
+indent_size = 4
+
+# Markdown: keep trailing whitespace meaningful (hard line breaks).
+[*.md]
+trim_trailing_whitespace = false
+
+# Makefiles require tabs.
+[Makefile]
+indent_style = tab

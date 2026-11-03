@@ -1,0 +1,6 @@
+{
+  "agent": "codex",
+  "skillsPath": ".codex/skills",
+  "instructionsFile": "AGENTS.md",
+  "notes": "OpenAI Codex. Discovers skills in .codex/skills/<name>/. Uses AGENTS.md (or AGENTS.override.md) for instructions."
+}

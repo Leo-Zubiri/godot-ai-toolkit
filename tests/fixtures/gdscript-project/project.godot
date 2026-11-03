@@ -1,0 +1,9 @@
+; Minimal GDScript fixture project (Godot 4.x). Used for headless parse/import checks.
+; See integrations/godot-cli/validate-headless.sh
+
+config_version=5
+
+[application]
+
+config/name="gdscript-fixture"
+config/features=PackedStringArray("4.7")

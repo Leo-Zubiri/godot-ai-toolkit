@@ -1,0 +1,56 @@
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  # Always-on tier: build, vet, test and self-validate the CLI on all platforms.
+  cli:
+    name: cli (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+          check-latest: true
+      - name: gofmt (lint)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: test -z "$(gofmt -l .)" || { echo 'gofmt needed on:'; gofmt -l .; exit 1; }
+      - name: go vet
+        run: go vet ./...
+      - name: go build
+        run: go build ./...
+      - name: go test
+        run: go test ./...
+      - name: self-validate (skills + adapters)
+        run: go run ./cmd/godot-ai-toolkit validate
+
+  # SDK-gated tier: attempt to build the C# fixture. Non-blocking: restoring the
+  # Godot.NET.Sdk requires network/package availability. A failure here is a
+  # SKIP, not a pass — see the step summary.
+  dotnet-fixture:
+    name: csharp fixture build (best-effort)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: dotnet build (csharp fixture)
+        run: dotnet build tests/fixtures/csharp-project
+
+  # Godot-gated tier is intentionally omitted from default CI: no Godot binary is
+  # provisioned here. Run locally with a Godot build:
+  #   integrations/godot-cli/validate-headless.sh tests/fixtures/gdscript-project

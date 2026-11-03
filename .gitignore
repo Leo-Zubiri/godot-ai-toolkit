@@ -1,0 +1,70 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# godot-ai-toolkit .gitignore
+# Policy: ignore GENERATED artifacts only. Never blanket-ignore source or
+# legitimate config (.csproj/.sln/.cs/project.godot/nuget.config). Never
+# blanket-ignore *.dll — some projects commit legitimate dependencies.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Godot (engine-generated caches/artifacts) ───────────────────────────────
+.godot/
+# Godot 3.x import cache (4.x uses .godot/). Kept for mixed-version safety:
+.import/
+*.translation
+# Exported builds (adjust per project; these are output artifacts):
+/build/
+/export/
+# NOTE: export_presets.cfg is intentionally NOT ignored — it is legitimate
+# project config. It CAN contain signing secrets (keystore passwords); review
+# before committing and keep secrets out of it. See docs/distribution.md.
+
+# ── .NET / C# (build output) ────────────────────────────────────────────────
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+TestResults/
+artifacts/
+*.user
+*.userosscache
+*.suo
+.vs/
+# Keep: *.csproj, *.sln, *.slnx, *.cs, nuget.config, Directory.Build.props
+# Do NOT add a blanket *.dll rule here.
+
+# ── Go (toolkit tooling build output) ───────────────────────────────────────
+/dist/
+/bin/godot-ai-toolkit
+/bin/godot-ai-toolkit.exe
+*.test
+*.out
+# Go module/build caches live outside the repo; nothing to ignore here.
+
+# ── Secrets / environment ───────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.keystore
+*.p12
+*.mobileprovision
+
+# ── Editors / IDEs ──────────────────────────────────────────────────────────
+.idea/
+*.swp
+*.swo
+*~
+# VS Code: ignore local settings but allow a shared recommended-extensions list.
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.shared.json
+
+# ── OS noise ────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Consumer control dir (only relevant if a game is built inside this repo) ─
+# .godot-ai/ lives in CONSUMER projects. The lock file there is committed by
+# the consumer; backups are not:
+.godot-ai/backups/
