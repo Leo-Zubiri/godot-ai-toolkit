@@ -17,7 +17,8 @@ func TestValidate(t *testing.T) {
 		{"ok", Adapter{Agent: "claude", SkillsPath: ".claude/skills", InstructionsFile: "CLAUDE.md"}, "claude", false},
 		{"missing agent", Adapter{SkillsPath: "x", InstructionsFile: "y"}, "", true},
 		{"base mismatch", Adapter{Agent: "claude", SkillsPath: "x", InstructionsFile: "y"}, "codex", true},
-		{"abs path", Adapter{Agent: "a", SkillsPath: "/abs", InstructionsFile: "y"}, "a", true},
+		{"abs path (posix)", Adapter{Agent: "a", SkillsPath: "/abs", InstructionsFile: "y"}, "a", true},
+		{"abs path (windows drive)", Adapter{Agent: "a", SkillsPath: "C:/abs", InstructionsFile: "y"}, "a", true},
 		{"escape path", Adapter{Agent: "a", SkillsPath: "../x", InstructionsFile: "y"}, "a", true},
 		{"missing instructions", Adapter{Agent: "a", SkillsPath: "x"}, "a", true},
 	}

@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -33,11 +34,15 @@ func (a Adapter) Validate(fileBase string) error {
 	if a.SkillsPath == "" {
 		return fmt.Errorf("'skillsPath' is required")
 	}
-	if filepath.IsAbs(a.SkillsPath) {
+	// skillsPath is a project-relative, slash-separated path, independent of the
+	// host OS. Reject absolute/rooted paths cross-platform: filepath.IsAbs alone
+	// misses a POSIX-style "/abs" on Windows, so also check the leading slash and
+	// a Windows drive letter (e.g. "C:").
+	sp := filepath.ToSlash(a.SkillsPath)
+	if strings.HasPrefix(sp, "/") || filepath.IsAbs(a.SkillsPath) || (len(sp) >= 2 && sp[1] == ':') {
 		return fmt.Errorf("'skillsPath' must be relative, got %q", a.SkillsPath)
 	}
-	clean := filepath.ToSlash(filepath.Clean(a.SkillsPath))
-	if clean == ".." || strings.HasPrefix(clean, "../") {
+	if clean := path.Clean(sp); clean == ".." || strings.HasPrefix(clean, "../") {
 		return fmt.Errorf("'skillsPath' must not escape the project (no '..'): %q", a.SkillsPath)
 	}
 	if a.InstructionsFile == "" {
