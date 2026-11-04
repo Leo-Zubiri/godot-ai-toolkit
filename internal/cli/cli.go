@@ -254,7 +254,8 @@ func cmdValidate(args []string) int {
 func cmdCatalog(args []string) int {
 	fs := flag.NewFlagSet("catalog", flag.ContinueOnError)
 	skillsDir := fs.String("skills-dir", "skills", "skills directory to index")
-	write := fs.Bool("write", false, "regenerate and write catalog.json (default: check only)")
+	write := fs.Bool("write", false, "regenerate and write catalog.json")
+	_ = fs.Bool("check", false, "check that catalog.json is up to date (the default when --write is absent)")
 	if err := fs.Parse(args); err != nil {
 		return 2
 	}

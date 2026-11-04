@@ -27,6 +27,22 @@ format expectations), not any single game.
 - CI workflow building and testing the CLI on Windows, Linux and macOS.
 - Research doc `docs/research/existing-skills-ecosystem.md`: comparative study of four existing Godot AI
   skills repos, with an evidence-based taxonomy/quality/source/version/testing policy and a prioritized roadmap.
+- P0/P1 design proposals under `docs/proposals/` (authoring & quality standard; verification workflow).
+- Skill manifest (`internal/manifest`, `skills/<name>/manifest.json`): schema for compatibility
+  (minimum/tested/reference), languages, categorized examples and sources; validated by `validate`.
+- Deterministic catalog (`internal/catalog`) and `toolkit catalog` subcommand (`--write` / `--check` staleness);
+  initial empty `skills/catalog.json`.
+- `toolkit verify` subcommand (`internal/verify`): engine-level verification of skill example files —
+  GDScript parse (`godot --check-only`) and C# build (`dotnet build`, reported BUILD_VERIFIED, never runtime);
+  PASS/FAIL/SKIPPED/NOT_APPLICABLE with per-example and global aggregation (a skipped mandatory check never
+  yields a global PASS); text and JSON reports.
+- Per-file GDScript parse helper `integrations/godot-cli/parse-gdscript.sh`.
+- CI: a Linux engine tier provisioning Godot 4.7.2 (+ .NET) to run `verify`, plus a `catalog --check` gate.
+
+### Changed
+- **Frontmatter contract finalized to `name` + `description` only.** The validator now rejects any other
+  top-level key; compatibility/metadata move to the skill manifest. `docs/authoring-skills.md` updated and the
+  `example-skill` fixture migrated accordingly.
 
 ### Fixed
 - `adapter.Validate` now rejects absolute/rooted `skillsPath` cross-platform (a POSIX-style `/abs` slipped
