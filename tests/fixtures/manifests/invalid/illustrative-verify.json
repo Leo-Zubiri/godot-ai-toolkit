@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "name": "sample",
+  "languages": ["gdscript"],
+  "godot": { "minimum": "4.2", "tested": ["4.7.2"], "reference": "4.7.2" },
+  "examples": [
+    { "path": "examples/a.gd", "language": "gdscript", "tier": "illustrative", "verify": "parse" }
+  ],
+  "sources": []
+}

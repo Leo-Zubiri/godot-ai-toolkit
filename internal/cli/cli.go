@@ -12,6 +12,7 @@ import (
 	"github.com/godot-ai-toolkit/godot-ai-toolkit/internal/fetch"
 	"github.com/godot-ai-toolkit/godot-ai-toolkit/internal/fsutil"
 	"github.com/godot-ai-toolkit/godot-ai-toolkit/internal/installer"
+	"github.com/godot-ai-toolkit/godot-ai-toolkit/internal/manifest"
 	"github.com/godot-ai-toolkit/godot-ai-toolkit/internal/skillspec"
 )
 
@@ -193,18 +194,42 @@ func cmdValidate(args []string) int {
 			continue
 		}
 		dir := filepath.Join(sd, e.Name())
-		if !fsutil.Exists(filepath.Join(dir, "SKILL.md")) {
+		skillMD := filepath.Join(dir, "SKILL.md")
+		if !fsutil.Exists(skillMD) {
 			continue
 		}
 		count++
-		issues := skillspec.ValidateDir(dir)
-		if len(issues) > 0 {
-			ok = false
-			for _, is := range issues {
-				fmt.Fprintf(os.Stderr, "FAIL %s\n", is)
-			}
+		skillOK := true
+
+		// 1. SKILL.md frontmatter contract, structure and reference integrity.
+		for _, is := range skillspec.ValidateDir(dir) {
+			skillOK = false
+			fmt.Fprintf(os.Stderr, "FAIL %s\n", is)
+		}
+
+		// 2. manifest.json (required; the source of truth for metadata).
+		mpath := filepath.Join(dir, manifest.FileName)
+		if !fsutil.Exists(mpath) {
+			skillOK = false
+			fmt.Fprintf(os.Stderr, "FAIL %s: %s is required\n", e.Name(), manifest.FileName)
+		} else if m, err := manifest.Load(mpath); err != nil {
+			skillOK = false
+			fmt.Fprintf(os.Stderr, "FAIL %s/%s: %v\n", e.Name(), manifest.FileName, err)
 		} else {
+			for _, me := range m.Validate(e.Name(), dir) {
+				skillOK = false
+				fmt.Fprintf(os.Stderr, "FAIL %s/%s: %s\n", e.Name(), manifest.FileName, me)
+			}
+			// 3. Size budget (warning, never fatal).
+			if w := sizeWarning(skillMD, m.SizeExceptionReason); w != "" {
+				fmt.Fprintf(os.Stderr, "WARN %s: %s\n", e.Name(), w)
+			}
+		}
+
+		if skillOK {
 			fmt.Printf("ok   %s\n", e.Name())
+		} else {
+			ok = false
 		}
 	}
 	if count == 0 {
@@ -241,6 +266,27 @@ func resolveSource(source, url, sha, repo, tag string) (string, func(), error) {
 		return "", nil, err
 	}
 	return descendSingleDir(tmp), cleanup, nil
+}
+
+// sizeWarning returns a non-empty warning when a SKILL.md exceeds the size
+// target (≤500 lines / ~5k tokens). It is advisory, never fatal; a recorded
+// exception reason is acknowledged rather than suppressing the notice.
+func sizeWarning(skillMD, exceptionReason string) string {
+	data, err := os.ReadFile(skillMD)
+	if err != nil {
+		return ""
+	}
+	lines := strings.Count(string(data), "\n") + 1
+	approxTokens := len(data) / 4 // rough heuristic
+	if lines <= 500 && approxTokens <= 5000 {
+		return ""
+	}
+	if exceptionReason != "" {
+		return fmt.Sprintf("large SKILL.md (%d lines, ~%d tokens) — exception noted: %s",
+			lines, approxTokens, exceptionReason)
+	}
+	return fmt.Sprintf("SKILL.md over target (%d lines, ~%d tokens; target ≤500 lines / ~5k tokens)",
+		lines, approxTokens)
 }
 
 // descendSingleDir returns the single child directory of dir if that is the only

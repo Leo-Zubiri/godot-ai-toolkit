@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "name": "sample",
+  "languages": ["gdscript", "csharp"],
+  "godot": { "minimum": "4.2", "tested": ["4.7.2"], "reference": "4.7.2" },
+  "dotnet": { "minimum": "8.0", "notes": "No C# web export; Android needs .NET 9+." },
+  "examples": [
+    { "path": "examples/sample.gd", "language": "gdscript", "tier": "complete", "verify": "parse" },
+    { "path": "examples/Csharp", "language": "csharp", "tier": "executable", "verify": "build" }
+  ],
+  "sources": [
+    { "claim": "C# cannot export to the web", "url": "https://docs.godotengine.org/en/4.7/tutorials/scripting/c_sharp/index.html", "version": "4.7" }
+  ]
+}
