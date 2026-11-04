@@ -25,6 +25,12 @@ format expectations), not any single game.
 - Test fixtures (valid + invalid skills; gdscript / csharp / mixed Godot projects).
 - Headless Godot validation helpers (`integrations/godot-cli`) and .NET notes (`integrations/dotnet`).
 - CI workflow building and testing the CLI on Windows, Linux and macOS.
+- Research doc `docs/research/existing-skills-ecosystem.md`: comparative study of four existing Godot AI
+  skills repos, with an evidence-based taxonomy/quality/source/version/testing policy and a prioritized roadmap.
+
+### Fixed
+- `adapter.Validate` now rejects absolute/rooted `skillsPath` cross-platform (a POSIX-style `/abs` slipped
+  through `filepath.IsAbs` on Windows, failing CI); added a Windows drive-letter test case.
 
 ### Notes
 - No official Godot knowledge skills are authored yet. `skills/` holds only the taxonomy
