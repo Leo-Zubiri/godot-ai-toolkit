@@ -4,11 +4,6 @@ description: >-
   Throwaway fixture used only to exercise the toolkit pipeline (validation,
   installation, lock generation, status, update, conflict detection). It contains
   no real Godot knowledge. Use it only in tests.
-license: MIT
-compatibility: "Test fixture only. Not a real skill."
-metadata:
-  purpose: "pipeline-fixture"
-  stable: "true"
 ---
 
 # Example skill (fixture)

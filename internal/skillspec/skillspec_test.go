@@ -34,8 +34,8 @@ func TestParseValidFixture(t *testing.T) {
 	if !strings.Contains(fm.Description, "pipeline") {
 		t.Errorf("description = %q", fm.Description)
 	}
-	if fm.Metadata["purpose"] != "pipeline-fixture" {
-		t.Errorf("metadata = %v", fm.Metadata)
+	if len(fm.Keys) != 2 || fm.Keys[0] != "name" || fm.Keys[1] != "description" {
+		t.Errorf("frontmatter keys = %v; want [name description]", fm.Keys)
 	}
 	if !strings.Contains(body, "Example skill") {
 		t.Errorf("body missing expected content")
@@ -95,5 +95,25 @@ func TestDescriptionTooLong(t *testing.T) {
 func TestParseRejectsMissingFrontmatter(t *testing.T) {
 	if _, _, err := skillspec.Parse([]byte("# no frontmatter\n")); err == nil {
 		t.Fatal("expected error for missing frontmatter")
+	}
+}
+
+func TestValidateRejectsDisallowedFrontmatterKey(t *testing.T) {
+	skillDir := filepath.Join(t.TempDir(), "x")
+	if err := os.MkdirAll(skillDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	content := "---\nname: x\ndescription: ok\nlicense: MIT\n---\nbody\n"
+	if err := os.WriteFile(filepath.Join(skillDir, "SKILL.md"), []byte(content), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	found := false
+	for _, is := range skillspec.ValidateDir(skillDir) {
+		if strings.Contains(is.Message, "not allowed") {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatal("expected a 'not allowed' frontmatter-key issue for 'license'")
 	}
 }

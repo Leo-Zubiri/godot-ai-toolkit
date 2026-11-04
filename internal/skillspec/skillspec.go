@@ -1,9 +1,12 @@
 // Package skillspec parses and validates Agent Skills SKILL.md files.
 //
-// It implements a deliberately constrained YAML-frontmatter subset (top-level
-// scalars, block scalars, and a single nested "metadata" map) and FAILS LOUDLY
-// on anything outside that subset rather than guessing. See
-// docs/authoring-skills.md for the supported format.
+// The toolkit's frontmatter contract is deliberately minimal and portable:
+// only `name` and `description` are allowed. Richer metadata (compatibility,
+// languages, examples, sources) lives in the toolkit-owned skill manifest, not
+// in frontmatter. The parser accepts a constrained YAML subset (top-level
+// scalars, block scalars, and nested blocks) only so it can recognize and
+// REJECT disallowed keys loudly rather than mis-parsing them.
+// See docs/authoring-skills.md.
 package skillspec
 
 import (
@@ -17,26 +20,26 @@ import (
 
 // Spec limits (from https://agentskills.io/specification).
 const (
-	MaxNameLen          = 64
-	MaxDescriptionLen   = 1024
-	MaxCompatibilityLen = 500
+	MaxNameLen        = 64
+	MaxDescriptionLen = 1024
 )
+
+// AllowedFrontmatterKeys is the finalized contract: name + description only.
+var AllowedFrontmatterKeys = []string{"name", "description"}
 
 var nameRE = regexp.MustCompile(`^[a-z0-9]+(-[a-z0-9]+)*$`)
 
-// Frontmatter holds the recognized SKILL.md fields.
+// Frontmatter holds the recognized SKILL.md fields plus every top-level key seen
+// (so the validator can reject keys outside the contract).
 type Frontmatter struct {
-	Name          string
-	Description   string
-	License       string
-	Compatibility string
-	AllowedTools  string
-	Metadata      map[string]string
+	Name        string
+	Description string
+	Keys        []string
 }
 
 // Parse splits a SKILL.md into frontmatter and body.
 func Parse(content []byte) (Frontmatter, string, error) {
-	fm := Frontmatter{Metadata: map[string]string{}}
+	fm := Frontmatter{}
 	text := strings.ReplaceAll(string(content), "\r\n", "\n")
 	text = strings.TrimPrefix(text, string([]byte{0xEF, 0xBB, 0xBF})) // strip UTF-8 BOM
 	lines := strings.Split(text, "\n")
@@ -75,29 +78,24 @@ func parseFrontmatter(lines []string, fm *Frontmatter) error {
 		if !ok {
 			return fmt.Errorf("invalid frontmatter line (expected 'key: value'): %q", raw)
 		}
+		fm.Keys = append(fm.Keys, key)
 		tv := strings.TrimSpace(val)
-		if key == "metadata" {
-			if tv != "" {
-				return fmt.Errorf("'metadata' must be a nested block of 'key: value' pairs, not an inline value")
-			}
-			ni, err := parseMetadata(lines, i+1, fm)
-			if err != nil {
-				return err
-			}
-			i = ni
-			continue
-		}
+
+		// Block scalar value (e.g. "description: >-").
 		if tv == ">" || tv == ">-" || tv == "|" || tv == "|-" {
-			value, ni, err := readBlockScalar(lines, i+1, strings.HasPrefix(tv, ">"))
-			if err != nil {
-				return err
-			}
+			value, ni := readBlockScalar(lines, i+1, strings.HasPrefix(tv, ">"))
 			assignField(fm, key, value)
 			i = ni
 			continue
 		}
 		if strings.HasPrefix(tv, "|") || strings.HasPrefix(tv, ">") {
 			return fmt.Errorf("unsupported block scalar indicator %q for key %q", tv, key)
+		}
+		// Nested block (empty value followed by indented lines, e.g. "metadata:").
+		// Consumed so the key is recorded (and later rejected) without mis-parsing.
+		if tv == "" && i+1 < len(lines) && isIndented(lines[i+1]) {
+			i = skipIndented(lines, i+1)
+			continue
 		}
 		if strings.HasPrefix(tv, "[") || strings.HasPrefix(tv, "{") || strings.HasPrefix(tv, "&") || strings.HasPrefix(tv, "*") {
 			return fmt.Errorf("unsupported YAML construct for key %q: %q", key, tv)
@@ -108,30 +106,28 @@ func parseFrontmatter(lines []string, fm *Frontmatter) error {
 	return nil
 }
 
-func parseMetadata(lines []string, start int, fm *Frontmatter) (int, error) {
+func isIndented(s string) bool {
+	return len(s) > 0 && (s[0] == ' ' || s[0] == '\t')
+}
+
+func skipIndented(lines []string, start int) int {
 	i := start
 	for i < len(lines) {
-		ml := lines[i]
-		if strings.TrimSpace(ml) == "" {
+		if strings.TrimSpace(lines[i]) == "" {
 			i++
 			continue
 		}
-		if ml[0] != ' ' && ml[0] != '\t' {
-			break // end of nested block
+		if !isIndented(lines[i]) {
+			break
 		}
-		mkey, mval, ok := splitKeyVal(strings.TrimSpace(ml))
-		if !ok {
-			return i, fmt.Errorf("invalid metadata line (expected 'key: value'): %q", ml)
-		}
-		fm.Metadata[mkey] = unquote(strings.TrimSpace(mval))
 		i++
 	}
-	return i, nil
+	return i
 }
 
 // readBlockScalar collects an indented block starting at index start. folded
 // (">") joins lines with spaces; literal ("|") joins with newlines.
-func readBlockScalar(lines []string, start int, folded bool) (string, int, error) {
+func readBlockScalar(lines []string, start int, folded bool) (string, int) {
 	var block []string
 	i := start
 	for i < len(lines) {
@@ -190,7 +186,7 @@ func readBlockScalar(lines []string, start int, folded bool) (string, int, error
 	} else {
 		out = strings.Join(block, "\n")
 	}
-	return strings.TrimSpace(out), i, nil
+	return strings.TrimSpace(out), i
 }
 
 func splitKeyVal(line string) (string, string, bool) {
@@ -221,14 +217,6 @@ func assignField(fm *Frontmatter, key, value string) {
 		fm.Name = value
 	case "description":
 		fm.Description = value
-	case "license":
-		fm.License = value
-	case "compatibility":
-		fm.Compatibility = value
-	case "allowed-tools":
-		fm.AllowedTools = value
-	default:
-		// Unknown top-level keys are permitted by the spec; ignored here.
 	}
 }
 
@@ -240,7 +228,7 @@ type Issue struct {
 
 func (i Issue) String() string { return fmt.Sprintf("%s: %s", i.Path, i.Message) }
 
-// ValidateDir validates a single skill directory against the spec.
+// ValidateDir validates a single skill directory against the frontmatter contract.
 func ValidateDir(dir string) []Issue {
 	var issues []Issue
 	add := func(msg string) {
@@ -279,8 +267,13 @@ func ValidateDir(dir string) []Issue {
 		add(fmt.Sprintf("'description' is %d characters; max is %d", n, MaxDescriptionLen))
 	}
 
-	if utf8.RuneCountInString(fm.Compatibility) > MaxCompatibilityLen {
-		add(fmt.Sprintf("'compatibility' exceeds %d characters", MaxCompatibilityLen))
+	// Frontmatter contract: only name + description. Reject anything else
+	// (compatibility/metadata/etc. belong in the skill manifest).
+	for _, k := range fm.Keys {
+		if k != "name" && k != "description" {
+			add(fmt.Sprintf("frontmatter key %q is not allowed; the contract is 'name' + 'description' only "+
+				"(put compatibility/metadata in the skill manifest)", k))
+		}
 	}
 
 	for _, ref := range extractRelativeLinks(body) {
