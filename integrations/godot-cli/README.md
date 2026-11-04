@@ -17,6 +17,18 @@ fails to parse). The script therefore scans output for `SCRIPT ERROR` / `Parse E
 
 Exit codes: `0` ok · `1` validation failed · `2` **skipped** (no Godot binary — not a pass) · `3` usage.
 
+## `parse-gdscript.sh`
+
+Parse-checks a **single** GDScript file (syntax only):
+
+```sh
+integrations/godot-cli/parse-gdscript.sh skills/signals/examples/signal_bus.gd
+```
+
+Same exit-code contract (`0` ok · `1` failed · `2` **skipped**, no Godot · `3` usage) and the same output
+scan. **Syntax-only — a parse pass is not a runtime guarantee.** The `toolkit verify` command performs the
+equivalent check cross-platform by shelling to `godot` directly; this script is the standalone/CI counterpart.
+
 ## Notes
 
 - For running test suites, prefer each framework's own runner (GUT `-gexit`, GdUnit4 runner/Action),
