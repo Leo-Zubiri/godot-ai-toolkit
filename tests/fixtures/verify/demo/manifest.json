@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "name": "demo",
+  "languages": ["gdscript", "csharp"],
+  "godot": { "minimum": "4.2", "tested": ["4.7.2"], "reference": "4.7.2" },
+  "dotnet": { "minimum": "8.0", "notes": "No C# web export." },
+  "examples": [
+    { "path": "examples/hello.gd", "language": "gdscript", "tier": "complete", "verify": "parse" },
+    { "path": "examples/csharp", "language": "csharp", "tier": "complete", "verify": "build" }
+  ],
+  "sources": []
+}

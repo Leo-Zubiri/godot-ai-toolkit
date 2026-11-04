@@ -3,6 +3,7 @@ package cli
 
 import (
 	"bytes"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -16,6 +17,7 @@ import (
 	"github.com/godot-ai-toolkit/godot-ai-toolkit/internal/installer"
 	"github.com/godot-ai-toolkit/godot-ai-toolkit/internal/manifest"
 	"github.com/godot-ai-toolkit/godot-ai-toolkit/internal/skillspec"
+	"github.com/godot-ai-toolkit/godot-ai-toolkit/internal/verify"
 )
 
 // Version is the CLI version (override at build time with -ldflags).
@@ -38,6 +40,8 @@ func Run(args []string) int {
 		return cmdValidate(args[1:])
 	case "catalog":
 		return cmdCatalog(args[1:])
+	case "verify":
+		return cmdVerify(args[1:])
 	case "version", "--version", "-v":
 		fmt.Println("godot-ai-toolkit " + Version)
 		return 0
@@ -286,6 +290,87 @@ func cmdCatalog(args []string) int {
 	return 0
 }
 
+func cmdVerify(args []string) int {
+	fs := flag.NewFlagSet("verify", flag.ContinueOnError)
+	skillsDir := fs.String("skills-dir", "skills", "skills directory to verify")
+	asJSON := fs.Bool("json", false, "emit the report as JSON")
+	if err := fs.Parse(args); err != nil {
+		return 2
+	}
+	entries, err := os.ReadDir(*skillsDir)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "cannot read skills directory %s: %v\n", *skillsDir, err)
+		return 1
+	}
+	runners := verify.DefaultRunners()
+	var reports []verify.SkillReport
+	for _, e := range entries {
+		if !e.IsDir() {
+			continue
+		}
+		dir := filepath.Join(*skillsDir, e.Name())
+		mpath := filepath.Join(dir, manifest.FileName)
+		if !fsutil.Exists(mpath) {
+			continue
+		}
+		m, err := manifest.Load(mpath)
+		if err != nil {
+			reports = append(reports, verify.SkillReport{
+				Skill:  e.Name(),
+				Checks: []verify.Check{{ID: "structural", Status: verify.FAIL, Mandatory: true, Reason: err.Error()}},
+				Status: verify.FAIL,
+			})
+			continue
+		}
+		reports = append(reports, verify.VerifySkill(dir, m, runners))
+	}
+
+	overall := verify.Aggregate(reports)
+	report := verify.Report{Skills: reports, Status: overall}
+
+	if *asJSON {
+		data, _ := json.MarshalIndent(report, "", "  ")
+		fmt.Println(string(data))
+	} else {
+		printVerifyText(report, len(reports) == 0, *skillsDir)
+	}
+
+	switch overall {
+	case verify.FAIL:
+		return 1
+	case verify.SKIP:
+		return 2 // incomplete: a mandatory check could not run (never a PASS)
+	default:
+		return 0
+	}
+}
+
+func printVerifyText(report verify.Report, empty bool, skillsDir string) {
+	if empty {
+		fmt.Printf("no skills with a manifest found in %s (nothing to verify)\n", skillsDir)
+		return
+	}
+	for _, s := range report.Skills {
+		fmt.Printf("Skill: %-24s reference: %s\n", s.Skill, orDash(s.Reference))
+		for _, c := range s.Checks {
+			id := c.ID
+			if c.Example != "" {
+				id = c.Example + "  " + c.ID
+			}
+			line := fmt.Sprintf("  %-40s %s", id, c.Status)
+			if c.Verified != "" {
+				line += "  (" + c.Verified + "-verified)"
+			}
+			if c.Reason != "" {
+				line += "  — " + c.Reason
+			}
+			fmt.Println(line)
+		}
+		fmt.Printf("  => %s\n\n", s.Status)
+	}
+	fmt.Printf("overall: %s\n", report.Status)
+}
+
 // resolveSource returns a local source directory. If source is empty, it fetches
 // a content tarball (from --url, or --repo + --tag) into a temp dir.
 func resolveSource(source, url, sha, repo, tag string) (string, func(), error) {
@@ -394,6 +479,7 @@ Commands:
   status     Show the installed version and whether managed files changed.
   validate   Validate skills and adapters (SKILL.md contract, manifest, structure).
   catalog    Generate (--write) or check skills/catalog.json from manifests.
+  verify     Engine-level verification of skill example files (GDScript parse, C# build).
   version    Print the CLI version.
   help       Show this help.
 
