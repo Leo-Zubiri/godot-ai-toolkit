@@ -2,6 +2,7 @@
 package cli
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"os"
@@ -9,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/godot-ai-toolkit/godot-ai-toolkit/internal/adapter"
+	"github.com/godot-ai-toolkit/godot-ai-toolkit/internal/catalog"
 	"github.com/godot-ai-toolkit/godot-ai-toolkit/internal/fetch"
 	"github.com/godot-ai-toolkit/godot-ai-toolkit/internal/fsutil"
 	"github.com/godot-ai-toolkit/godot-ai-toolkit/internal/installer"
@@ -34,6 +36,8 @@ func Run(args []string) int {
 		return cmdStatus(args[1:])
 	case "validate":
 		return cmdValidate(args[1:])
+	case "catalog":
+		return cmdCatalog(args[1:])
 	case "version", "--version", "-v":
 		fmt.Println("godot-ai-toolkit " + Version)
 		return 0
@@ -243,6 +247,45 @@ func cmdValidate(args []string) int {
 	return 0
 }
 
+func cmdCatalog(args []string) int {
+	fs := flag.NewFlagSet("catalog", flag.ContinueOnError)
+	skillsDir := fs.String("skills-dir", "skills", "skills directory to index")
+	write := fs.Bool("write", false, "regenerate and write catalog.json (default: check only)")
+	if err := fs.Parse(args); err != nil {
+		return 2
+	}
+	cat, err := catalog.Build(*skillsDir)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "error building catalog:", err)
+		return 1
+	}
+	data, err := cat.Marshal()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "error:", err)
+		return 1
+	}
+	path := catalog.Path(*skillsDir)
+	if *write {
+		if err := fsutil.WriteFileAtomic(path, data, 0o644); err != nil {
+			fmt.Fprintln(os.Stderr, "error:", err)
+			return 1
+		}
+		fmt.Printf("wrote %s (%d skills)\n", path, len(cat.Skills))
+		return 0
+	}
+	existing, err := os.ReadFile(path)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s is missing or unreadable — run 'catalog --write'\n", path)
+		return 1
+	}
+	if !bytes.Equal(existing, data) {
+		fmt.Fprintf(os.Stderr, "%s is out of date — run 'catalog --write'\n", path)
+		return 1
+	}
+	fmt.Printf("%s up to date (%d skills)\n", path, len(cat.Skills))
+	return 0
+}
+
 // resolveSource returns a local source directory. If source is empty, it fetches
 // a content tarball (from --url, or --repo + --tag) into a temp dir.
 func resolveSource(source, url, sha, repo, tag string) (string, func(), error) {
@@ -349,7 +392,8 @@ Commands:
   install    Install selected skills for selected agents into a project.
   update     Update an existing installation (explicit; detects local changes).
   status     Show the installed version and whether managed files changed.
-  validate   Validate skills and adapters (SKILL.md structure, frontmatter).
+  validate   Validate skills and adapters (SKILL.md contract, manifest, structure).
+  catalog    Generate (--write) or check skills/catalog.json from manifests.
   version    Print the CLI version.
   help       Show this help.
 
