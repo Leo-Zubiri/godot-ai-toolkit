@@ -31,15 +31,16 @@ See [`docs/architecture.md`](docs/architecture.md) for the full model. In short:
 
 ## Adding a skill
 
-> No official Godot skills are authored yet. When that phase begins, follow
-> [`docs/authoring-skills.md`](docs/authoring-skills.md). Summary:
+> **First** complete the [skill research & technical-grounding protocol](docs/skill-research-protocol.md)
+> and present its research report. Then follow [`docs/authoring-skills.md`](docs/authoring-skills.md).
+> Authored examples: [`signals`](skills/signals/SKILL.md), [`scenes-and-nodes`](skills/scenes-and-nodes/SKILL.md).
+> Summary:
 
 1. Create `skills/<skill-name>/SKILL.md`. The folder name **must equal** the `name` frontmatter
    field (lowercase `[a-z0-9-]`, 1–64 chars).
-2. Frontmatter requires `name` and `description` (1–1024 chars, says *what* it does and *when*
-   to use it). Optional: `license`, `compatibility`, `metadata`, `allowed-tools`.
-3. Keep `SKILL.md` under ~500 lines. Put large material in `references/`, scripts in `scripts/`,
-   templates in `assets/`.
+2. Frontmatter is **`name` + `description` only** (no other key is allowed). Compatibility, languages,
+   examples and sources go in the skill's `manifest.json`.
+3. Keep `SKILL.md` under ~500 lines (a warning, not a hard cap). Put large material in `references/`.
 4. State version/build requirements (e.g. "C# requires the .NET editor build; no web export")
    in `compatibility` and in the body where relevant.
 5. Validate before committing (see below).

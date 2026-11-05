@@ -5,6 +5,10 @@ Skills are the heart of the toolkit. They follow the open
 Codex can all consume them. **We author to the strict spec** for maximum portability — even though
 some agents (e.g. Claude Code) are more lenient.
 
+> **Before authoring any skill, follow the [skill research & technical-grounding protocol](skill-research-protocol.md)**
+> and present its research report. This document covers the *format/contract*; the protocol covers *how the
+> content is grounded and validated*.
+
 > The first production skill — [`signals`](../skills/signals/SKILL.md) — is authored. This document defines
 > *how* skills are written. Throwaway pipeline/example fixtures live in `tests/fixtures/`, never in `skills/`.
 

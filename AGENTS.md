@@ -18,6 +18,8 @@ adapter schema, or the distribution model.
    blogs, third-party repos, or memory. Cite the source in the PR or the file.
 4. Check [`docs/compatibility.md`](docs/compatibility.md) for verified version/platform facts, and
    do not contradict it without updating it (with sources).
+5. **Before authoring any skill**, follow [`docs/skill-research-protocol.md`](docs/skill-research-protocol.md)
+   and present its research report first. Never fabricate research or cite unseen sources.
 
 ## How this repository is organized (where things go)
 
