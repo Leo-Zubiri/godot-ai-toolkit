@@ -155,8 +155,9 @@ Details in [references/lifecycle-and-safety.md](references/lifecycle-and-safety.
 | Await | `await obj.x` | `await ToSignal(obj, T.SignalName.X)` |
 | Cleanup | freeing callable's object drops it | `+=`/capturing lambda need manual `-=` |
 
-C# also requires the **.NET editor build** and the **.NET 8 SDK** (9 for Android), and **cannot export to
-Web**.[^csindex][^csbasics] More in [references/csharp-signals.md](references/csharp-signals.md).
+C# also requires the **.NET editor build** and **cannot export to Web**. **Use .NET 8** for current Godot
+4.7 (9 for Android export); .NET 6 was the technical minimum only for Godot 4.0–4.3 and is **not recommended**
+for new work.[^csindex][^csbasics] More in [references/csharp-signals.md](references/csharp-signals.md).
 
 ## Anti-patterns
 

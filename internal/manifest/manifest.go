@@ -32,9 +32,13 @@ type Godot struct {
 }
 
 // DotNet captures C#/.NET requirements (required when a skill lists csharp).
+// Minimum is the historical technical floor; Recommended is the current advice;
+// Tested lists .NET target frameworks actually built.
 type DotNet struct {
-	Minimum string `json:"minimum,omitempty"`
-	Notes   string `json:"notes,omitempty"`
+	Minimum     string   `json:"minimum,omitempty"`
+	Recommended string   `json:"recommended,omitempty"`
+	Tested      []string `json:"tested,omitempty"`
+	Notes       string   `json:"notes,omitempty"`
 }
 
 // Example is one categorized code example associated with the skill.

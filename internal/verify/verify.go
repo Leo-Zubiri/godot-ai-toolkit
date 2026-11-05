@@ -240,9 +240,9 @@ func DefaultRunners() Runners {
 			if _, err := exec.LookPath("dotnet"); err != nil {
 				return Outcome{Status: SKIP, Reason: "no .NET SDK (dotnet not found)"}
 			}
-			out, err := exec.Command("dotnet", "build", absDir, "-v", "quiet", "--nologo").CombinedOutput()
+			out, err := exec.Command("dotnet", "build", absDir, "-v", "minimal", "--nologo").CombinedOutput()
 			if err != nil {
-				return Outcome{Status: FAIL, Reason: lastLine(string(out))}
+				return Outcome{Status: FAIL, Reason: buildErrorSummary(string(out))}
 			}
 			return Outcome{Status: PASS, Verified: "build"}
 		},
@@ -275,10 +275,28 @@ func hasGodotError(s string) bool {
 	return false
 }
 
-func lastLine(s string) string {
-	lines := strings.Split(strings.TrimRight(s, "\n"), "\n")
-	if len(lines) == 0 {
-		return ""
+// buildErrorSummary extracts the useful compiler diagnostics (file, line, code,
+// message) from `dotnet build` output, rather than its last line. Kept simple:
+// it collects the first few lines that look like MSBuild/C# errors.
+func buildErrorSummary(out string) string {
+	var errs []string
+	seen := map[string]bool{}
+	for _, line := range strings.Split(out, "\n") {
+		l := strings.TrimSpace(line)
+		if strings.Contains(l, "): error ") || strings.Contains(l, " error CS") ||
+			strings.Contains(l, " error MSB") || strings.Contains(l, " error NU") {
+			if seen[l] {
+				continue
+			}
+			seen[l] = true
+			errs = append(errs, l)
+			if len(errs) >= 3 {
+				break
+			}
+		}
 	}
-	return strings.TrimSpace(lines[len(lines)-1])
+	if len(errs) == 0 {
+		return "dotnet build failed (see full output)"
+	}
+	return strings.Join(errs, " | ")
 }

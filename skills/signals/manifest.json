@@ -3,7 +3,7 @@
   "name": "signals",
   "languages": ["gdscript", "csharp"],
   "godot": { "minimum": "4.0", "tested": ["4.7.2"], "reference": "4.7.2" },
-  "dotnet": { "minimum": "8.0", "notes": "Requires the .NET-enabled editor build; no C# web export; Android export needs .NET 9+." },
+  "dotnet": { "minimum": "6.0", "recommended": "8.0", "tested": ["8.0"], "notes": "Technical minimum is version-dependent: .NET 6 for Godot 4.0-4.3, .NET 8 for Godot 4.4+ (9 for Android). .NET 8 is the current recommendation (reference Godot 4.7); .NET 6 is historical only and not recommended for new work. C# needs the .NET-enabled editor build; no C# web export. The shipped example targets net8.0 (built); net6.0 compatibility was checked once against Godot.NET.Sdk 4.0.0." },
   "examples": [
     { "path": "examples/gdscript/declare_emit_connect.gd", "language": "gdscript", "tier": "complete", "verify": "parse" },
     { "path": "examples/gdscript/safe_connect.gd", "language": "gdscript", "tier": "complete", "verify": "parse" },
