@@ -32,6 +32,7 @@ func fakeRunners(godot, dotnet bool, gd, cs verify.Status) verify.Runners {
 		GodotAvailable:  func() bool { return godot },
 		DotnetAvailable: func() bool { return dotnet },
 		GDScriptParse:   func(string) verify.Outcome { return verify.Outcome{Status: gd, Verified: "parse"} },
+		GDScriptRun:     func(string) verify.Outcome { return verify.Outcome{Status: verify.PASS, Verified: "runtime"} },
 		CSharpBuild:     func(string) verify.Outcome { return verify.Outcome{Status: cs, Verified: "build"} },
 	}
 }
@@ -97,6 +98,34 @@ func TestIllustrativeIsNotApplicable(t *testing.T) {
 	}
 	if rep.Status != verify.PASS {
 		t.Errorf("global with only illustrative = %s; want PASS", rep.Status)
+	}
+}
+
+func TestGDScriptRuntime(t *testing.T) {
+	dir := filepath.Join(t.TempDir(), "demo")
+	if err := os.MkdirAll(filepath.Join(dir, "examples", "proj"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	m := &manifest.Manifest{
+		SchemaVersion: 1, Name: "demo", Languages: []string{"gdscript"},
+		Godot:    manifest.Godot{Minimum: "4.2", Tested: []string{"4.7.2"}, Reference: "4.7.2"},
+		Examples: []manifest.Example{{Path: "examples/proj", Language: "gdscript", Tier: "executable", Verify: "run"}},
+	}
+	// Godot present -> runtime check runs and is "runtime"-verified.
+	rep := verify.VerifySkill(dir, m, fakeRunners(true, true, verify.PASS, verify.PASS))
+	if c, ok := find(rep, "gdscript:runtime"); !ok || c.Status != verify.PASS || c.Verified != "runtime" {
+		t.Fatalf("expected runtime-verified PASS, got %+v", c)
+	}
+	if rep.Status != verify.PASS {
+		t.Errorf("global = %s; want PASS", rep.Status)
+	}
+	// Godot absent -> runtime SKIPPED -> global not PASS.
+	rep2 := verify.VerifySkill(dir, m, fakeRunners(false, true, verify.PASS, verify.PASS))
+	if c, ok := find(rep2, "gdscript:runtime"); !ok || c.Status != verify.SKIP {
+		t.Errorf("expected runtime SKIPPED without Godot, got %+v", c)
+	}
+	if rep2.Status == verify.PASS {
+		t.Error("a skipped mandatory runtime check must not yield global PASS")
 	}
 }
 

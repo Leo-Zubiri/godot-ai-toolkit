@@ -62,6 +62,7 @@ type Runners struct {
 	GodotAvailable  func() bool
 	DotnetAvailable func() bool
 	GDScriptParse   func(absFile string) Outcome
+	GDScriptRun     func(absProjectDir string) Outcome
 	CSharpBuild     func(absProjectDir string) Outcome
 }
 
@@ -120,13 +121,25 @@ func checksForExample(skillDir string, ex manifest.Example, r Runners) []Check {
 				c.Status, c.Verified, c.Reason = o.Status, o.Verified, o.Reason
 			}
 			checks = append(checks, c)
+		case ex.Language == "gdscript" && action == "run":
+			// Runtime verification of a GDScript project: it must boot headless
+			// and exit 0 (its res://verify.gd asserts behavior and quits non-zero
+			// on failure). This proves real behavior, not just that it parses.
+			c := Check{Example: ex.Path, ID: "gdscript:runtime", Mandatory: true}
+			if !r.GodotAvailable() {
+				c.Status, c.Reason = SKIP, "no Godot binary (set GODOT_BIN)"
+			} else {
+				o := r.GDScriptRun(abs)
+				c.Status, c.Verified, c.Reason = o.Status, o.Verified, o.Reason
+			}
+			checks = append(checks, c)
 		case action == "run":
-			// Runtime verification is deferred in this phase (no gdUnit4Net; C#
-			// runtime needs a .NET-enabled Godot build). Reported honestly as
+			// C# (and any other) runtime is still deferred: it needs a .NET-enabled
+			// Godot build, and gdUnit4Net is intentionally not integrated. Reported
 			// SKIPPED so it can never masquerade as runtime-verified.
 			checks = append(checks, Check{
 				Example: ex.Path, ID: ex.Language + ":runtime", Status: SKIP, Mandatory: true,
-				Reason: "runtime verification not implemented in this phase",
+				Reason: "C# runtime verification deferred (needs .NET-enabled Godot; gdUnit4Net excluded)",
 			})
 		default:
 			checks = append(checks, Check{
@@ -202,6 +215,23 @@ func DefaultRunners() Runners {
 				return Outcome{Status: FAIL, Reason: err.Error()}
 			}
 			return Outcome{Status: PASS, Verified: "parse"}
+		},
+		GDScriptRun: func(absDir string) Outcome {
+			bin := godotBin()
+			if bin == "" {
+				return Outcome{Status: SKIP, Reason: "no Godot binary (set GODOT_BIN)"}
+			}
+			// Convention: the project's entry point is res://verify.gd, which
+			// asserts behavior and quits non-zero on failure.
+			out, err := exec.Command(bin, "--headless", "--path", absDir, "--script", "res://verify.gd").CombinedOutput()
+			s := string(out)
+			if hasGodotError(s) || strings.Contains(s, "FAIL") {
+				return Outcome{Status: FAIL, Reason: "runtime error or assertion failure in output"}
+			}
+			if err != nil {
+				return Outcome{Status: FAIL, Reason: err.Error()}
+			}
+			return Outcome{Status: PASS, Verified: "runtime"}
 		},
 		CSharpBuild: func(absDir string) Outcome {
 			if _, err := exec.LookPath("dotnet"); err != nil {
