@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "name": "gdscript",
+  "languages": ["gdscript"],
+  "godot": { "minimum": "4.0", "tested": ["4.7.2"], "reference": "4.7.2" },
+  "examples": [
+    { "path": "examples/gdscript/typed_class.gd", "language": "gdscript", "tier": "complete", "verify": "parse" },
+    { "path": "examples/gdscript/data_modeling.gd", "language": "gdscript", "tier": "complete", "verify": "parse" },
+    { "path": "examples/gdscript/composition_vs_inheritance.gd", "language": "gdscript", "tier": "complete", "verify": "parse" },
+    { "path": "examples/gdscript/defensive.gd", "language": "gdscript", "tier": "complete", "verify": "parse" },
+    { "path": "examples/gdscript-runtime", "language": "gdscript", "tier": "executable", "verify": "run" }
+  ],
+  "sources": [
+    { "claim": "Static typing: typed vars, inference (:=), typed params/returns, typed arrays; typed GDScript uses optimized opcodes and catches more errors at compile time", "url": "https://docs.godotengine.org/en/4.7/tutorials/scripting/gdscript/static_typing.html", "version": "4.7" },
+    { "claim": "Functions/scope, static var (4.1+), class_name/extends/inner classes/_init/super, @abstract (4.5+), enums, Variant, Array/Dictionary passed by reference, typed dictionaries (4.4+), assert is debug-only", "url": "https://docs.godotengine.org/en/4.7/tutorials/scripting/gdscript/gdscript_basics.html", "version": "4.7" },
+    { "claim": "Naming conventions, := guidance, and/or/not operators", "url": "https://docs.godotengine.org/en/4.7/tutorials/scripting/gdscript/gdscript_styleguide.html", "version": "4.7" },
+    { "claim": "@warning_ignore and promoting warnings to compile errors", "url": "https://docs.godotengine.org/en/4.7/tutorials/scripting/gdscript/warning_system.html", "version": "4.7" },
+    { "claim": "@abstract annotation and GDScript built-in functions (len/range/assert/load/preload/is_instance_of)", "url": "https://docs.godotengine.org/en/4.7/classes/class_@gdscript.html", "version": "4.7" },
+    { "claim": "push_error(...), push_warning(...), typeof(variable: Variant) -> int", "url": "https://docs.godotengine.org/en/4.7/classes/class_@globalscope.html", "version": "4.7" },
+    { "claim": "Array is always passed by reference; map/filter/find/sort/duplicate", "url": "https://docs.godotengine.org/en/4.7/classes/class_array.html", "version": "4.7" },
+    { "claim": "Dictionary is always passed by reference; get/has/keys/merge", "url": "https://docs.godotengine.org/en/4.7/classes/class_dictionary.html", "version": "4.7" }
+  ]
+}

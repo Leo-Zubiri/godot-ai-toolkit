@@ -1,0 +1,10 @@
+; Minimal project for runtime GDScript-language verification. Run headless via:
+;   godot --headless --path . --script res://verify.gd
+; verify.gd asserts language behavior and quits non-zero on failure.
+
+config_version=5
+
+[application]
+
+config/name="gdscript-runtime-verify"
+config/features=PackedStringArray("4.7")

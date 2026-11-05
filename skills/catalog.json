@@ -2,6 +2,20 @@
   "schemaVersion": 1,
   "skills": [
     {
+      "name": "gdscript",
+      "languages": [
+        "gdscript"
+      ],
+      "godot": {
+        "minimum": "4.0",
+        "tested": [
+          "4.7.2"
+        ],
+        "reference": "4.7.2"
+      },
+      "examples": 5
+    },
+    {
       "name": "scenes-and-nodes",
       "languages": [
         "gdscript",
