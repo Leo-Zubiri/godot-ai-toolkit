@@ -5,8 +5,8 @@ Skills are the heart of the toolkit. They follow the open
 Codex can all consume them. **We author to the strict spec** for maximum portability — even though
 some agents (e.g. Claude Code) are more lenient.
 
-> No official Godot skills are authored yet. This document defines *how* they will be written. The
-> example used to test the pipeline lives in `tests/fixtures/`, not in `skills/`.
+> The first production skill — [`signals`](../skills/signals/SKILL.md) — is authored. This document defines
+> *how* skills are written. Throwaway pipeline/example fixtures live in `tests/fixtures/`, never in `skills/`.
 
 ## One skill = one folder
 

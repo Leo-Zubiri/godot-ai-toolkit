@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "name": "signals",
+  "languages": ["gdscript", "csharp"],
+  "godot": { "minimum": "4.0", "tested": ["4.7.2"], "reference": "4.7.2" },
+  "dotnet": { "minimum": "8.0", "notes": "Requires the .NET-enabled editor build; no C# web export; Android export needs .NET 9+." },
+  "examples": [
+    { "path": "examples/gdscript/declare_emit_connect.gd", "language": "gdscript", "tier": "complete", "verify": "parse" },
+    { "path": "examples/gdscript/safe_connect.gd", "language": "gdscript", "tier": "complete", "verify": "parse" },
+    { "path": "examples/gdscript-runtime", "language": "gdscript", "tier": "executable", "verify": "run" },
+    { "path": "examples/csharp", "language": "csharp", "tier": "complete", "verify": "build" }
+  ],
+  "sources": [
+    { "claim": "Signals are a first-class type since Godot 4.0; connect takes a Callable", "url": "https://docs.godotengine.org/en/4.7/getting_started/step_by_step/signals.html", "version": "4.7" },
+    { "claim": "GDScript: declare with the signal keyword; emit with signal.emit(); connect a Callable; bind extra args", "url": "https://docs.godotengine.org/en/4.7/tutorials/scripting/gdscript/gdscript_basics.html", "version": "4.7" },
+    { "claim": "Object.connect/disconnect/emit_signal/is_connected and ConnectFlags values (DEFERRED=1, PERSIST=2, ONE_SHOT=4, REFERENCE_COUNTED=8); duplicate connect returns ERR_INVALID_PARAMETER", "url": "https://docs.godotengine.org/en/4.7/classes/class_object.html", "version": "4.7" },
+    { "claim": "Node lifecycle signals: ready, tree_entered, tree_exiting, tree_exited, renamed", "url": "https://docs.godotengine.org/en/4.7/classes/class_node.html", "version": "4.7" },
+    { "claim": "C#: [Signal] delegate must end with EventHandler; generates event + SignalName; EmitSignal(SignalName.X); += / -=; rebuild required; cannot use Invoke", "url": "https://docs.godotengine.org/en/4.7/tutorials/scripting/c_sharp/c_sharp_signals.html", "version": "4.7" },
+    { "claim": "C#: no bind/unbind (use lambdas); await ToSignal(obj, Class.SignalName.X)", "url": "https://docs.godotengine.org/en/4.7/tutorials/scripting/c_sharp/c_sharp_differences.html", "version": "4.7" },
+    { "claim": "C# requires the .NET editor build and .NET 8 SDK (9 for Android)", "url": "https://docs.godotengine.org/en/4.7/tutorials/scripting/c_sharp/c_sharp_basics.html", "version": "4.7" },
+    { "claim": "C# cannot export to the Web platform", "url": "https://docs.godotengine.org/en/4.7/tutorials/scripting/c_sharp/index.html", "version": "4.7" }
+  ]
+}

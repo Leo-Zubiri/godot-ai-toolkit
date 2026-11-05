@@ -1,4 +1,24 @@
 {
   "schemaVersion": 1,
-  "skills": []
+  "skills": [
+    {
+      "name": "signals",
+      "languages": [
+        "gdscript",
+        "csharp"
+      ],
+      "godot": {
+        "minimum": "4.0",
+        "tested": [
+          "4.7.2"
+        ],
+        "reference": "4.7.2"
+      },
+      "dotnet": {
+        "minimum": "8.0",
+        "notes": "Requires the .NET-enabled editor build; no C# web export; Android export needs .NET 9+."
+      },
+      "examples": 4
+    }
+  ]
 }

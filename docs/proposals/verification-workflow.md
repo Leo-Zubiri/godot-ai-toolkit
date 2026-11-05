@@ -1,8 +1,9 @@
 # Proposal P1 — Minimal Verification Workflow
 
-> **Status: APPROVED (design) — not yet implemented.** Design/documentation only. The decisions are **reviewed
-> and approved** (see *Resolved decisions*). Where tooling is needed it remains a **gated change**: no
-> installer/CLI/adapter/fixture code is modified in this consolidation phase. Companion to
+> **Status: IMPLEMENTED (P1) + GDScript runtime added (P2).** `validate` (manifest + size warnings), `catalog`
+> generation/staleness, and `toolkit verify` (GDScript **parse** and **runtime**, C# **build**) are in the CLI,
+> with a Linux Godot 4.7.2 CI engine tier. **Still deferred:** C# **runtime** (needs a .NET-enabled Godot build;
+> gdUnit4Net intentionally not integrated) — reported SKIPPED, never RUNTIME_VERIFIED. Companion to
 > [`authoring-and-quality-standard.md`](authoring-and-quality-standard.md) (P0).
 
 ## Principles

@@ -38,6 +38,12 @@ format expectations), not any single game.
   yields a global PASS); text and JSON reports.
 - Per-file GDScript parse helper `integrations/godot-cli/parse-gdscript.sh`.
 - CI: a Linux engine tier provisioning Godot 4.7.2 (+ .NET) to run `verify`, plus a `catalog --check` gate.
+- **First production skill `skills/signals/`** (Godot 4.7, GDScript + C#): declaring/emitting/connecting,
+  Callable/bind, connect flags, duplicate-connection safety, `await`, lifecycle/cleanup, GDScript↔C# table,
+  anti-patterns; cited `## Sources` + manifest `sources[]`; examples categorized (GDScript parse ×2, GDScript
+  runtime project, C# build project).
+- `verify`: **GDScript runtime** verification (`run` action) — boots an executable project headless and gates
+  on exit code + failure markers (runtime-verified). C# runtime stays deferred (SKIPPED).
 
 ### Changed
 - **Frontmatter contract finalized to `name` + `description` only.** The validator now rejects any other

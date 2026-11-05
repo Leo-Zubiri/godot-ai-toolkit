@@ -6,8 +6,8 @@ with a `SKILL.md` following the [Agent Skills spec](https://agentskills.io/speci
 
 ## Status
 
-**No skills are authored yet.** This is deliberate: the current phase builds the structure and the
-tooling, not the knowledge. This folder currently holds only this taxonomy.
+**Authored:** [`signals`](signals/SKILL.md) — the first production skill (Godot 4.7, GDScript + C#).
+The rest of the taxonomy below is planned. `catalog.json` is generated from the skills' manifests.
 
 > The throwaway example skill used to exercise the installer/validator lives in
 > [`../tests/fixtures/skills/`](../tests/fixtures/), **never here**. `skills/` is reserved for the

@@ -222,14 +222,17 @@ func DefaultRunners() Runners {
 				return Outcome{Status: SKIP, Reason: "no Godot binary (set GODOT_BIN)"}
 			}
 			// Convention: the project's entry point is res://verify.gd, which
-			// asserts behavior and quits non-zero on failure.
+			// asserts behavior and quits non-zero on failure. quit(code) sets a
+			// reliable exit code at runtime, so we gate on exit code + explicit
+			// failure markers (not a generic "ERROR:" which the engine may print
+			// benignly).
 			out, err := exec.Command(bin, "--headless", "--path", absDir, "--script", "res://verify.gd").CombinedOutput()
 			s := string(out)
-			if hasGodotError(s) || strings.Contains(s, "FAIL") {
-				return Outcome{Status: FAIL, Reason: "runtime error or assertion failure in output"}
+			if strings.Contains(s, "SCRIPT ERROR") || strings.Contains(s, "FAIL") {
+				return Outcome{Status: FAIL, Reason: "runtime script error or assertion failure in output"}
 			}
 			if err != nil {
-				return Outcome{Status: FAIL, Reason: err.Error()}
+				return Outcome{Status: FAIL, Reason: "non-zero exit: " + err.Error()}
 			}
 			return Outcome{Status: PASS, Verified: "runtime"}
 		},
