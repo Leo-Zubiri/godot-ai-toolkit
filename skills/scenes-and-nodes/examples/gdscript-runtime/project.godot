@@ -1,0 +1,10 @@
+; Minimal project for runtime scenes-and-nodes verification. Run headless via:
+;   godot --headless --path . --script res://verify.gd
+; verify.gd asserts lifecycle ordering, instancing and freeing; quits non-zero on failure.
+
+config_version=5
+
+[application]
+
+config/name="scenes-and-nodes-runtime-verify"
+config/features=PackedStringArray("4.7")
